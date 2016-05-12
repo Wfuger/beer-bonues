@@ -5,6 +5,30 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 
+router.get('/me', function ( req, res, next ) {
+    // √ get authorization header
+    //  "Bearer owoeiruoiwuer8329748927" OR nothing
+    // √ string logic to parse that
+    // √ decode it
+    // √ find the user that matches that id
+    // √ return the user object
+    if(req.headers.authorization) {
+        const token = req.headers.authorization.split(' ')[1];
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        // payload is {id: 23}
+        knex('users').where({id: payload.id}).first().then(function(user){
+            if (user) {
+                res.json({id: user.id, name: user.name})
+            } else {
+                res.status(403).json({error: 'invalid ID'})
+            }
+        });
+    } else {
+        res.status(403).json({
+            error: "No token breh"
+        })
+    }
+});
 
 /* GET users listing. */
 router.post('/signup', function(req, res, next) {
